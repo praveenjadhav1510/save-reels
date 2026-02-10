@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { storage, ref, uploadBytes, getDownloadURL, updateProfile } from '../firebase';
-import { User, Calendar, Clock, Key, Shield, Smartphone, Mail, AlertCircle, Copy, Check, Camera } from 'lucide-react';
+import { User, Calendar, Clock, Key, Shield, Smartphone, Mail, AlertCircle, Copy, Camera } from 'lucide-react';
 
 const Profile = ({ user, showNotification }) => {
     const [uploading, setUploading] = useState(false);
@@ -43,10 +43,7 @@ const Profile = ({ user, showNotification }) => {
         }
     };
 
-    const itemVariants = {
-        hidden: { opacity: 0, y: 20 },
-        visible: { opacity: 1, y: 0 }
-    };
+
 
     return (
         <div style={{
