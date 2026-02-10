@@ -1,13 +1,68 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@300;400;600;700&display=swap');
+
+:root {
+  --bg-color: #ffffff;
+  --card-bg: rgba(20, 20, 20, 0.95);
+  --primary-color: #000000;
+  --accent-color: #4b5563;
+  --text-main: #e5e5e5;
+  --text-muted: #9ca3af;
+  --glass-border: rgba(255, 255, 255, 0.05);
+  --glass-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--bg-color);
+  color: #1a1a1a;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
+.glass-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: 12px;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+input[type="file"] {
+  display: none;
+}
+
+input,
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ===== Responsive: Tablets (≤768px) ===== */
+@media (max-width: 768px) {
+  .glass-card {
+    border-radius: 10px;
+  }
+}
+
+/* ===== Responsive: Phones (≤480px) ===== */
+@media (max-width: 480px) {
+  .glass-card {
+    border-radius: 8px;
+    box-shadow: 0 10px 25px -8px rgba(0, 0, 0, 0.4);
+  }
 }
