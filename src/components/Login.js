@@ -1,7 +1,7 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { signInWithPopup } from 'firebase/auth';
+import { signInWithPopup, signInWithRedirect, getRedirectResult } from 'firebase/auth';
 import { auth, provider } from '../firebase';
 
 
@@ -18,14 +18,48 @@ const Login = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
+    // Handle redirect result (when signInWithRedirect is used as fallback)
+    useEffect(() => {
+        getRedirectResult(auth)
+            .then((result) => {
+                if (result) {
+                    console.log('Redirect sign-in successful');
+                }
+            })
+            .catch((err) => {
+                console.error('Redirect sign-in error:', err);
+                setError(`Auth Error (${err.code}): ${err.message}`);
+            });
+    }, []);
+
     const handleLogin = async () => {
         setLoading(true);
         setError(null);
         try {
             await signInWithPopup(auth, provider);
         } catch (err) {
-            setError("Authentication failed. Please verify configuration.");
-            console.error(err);
+            console.error('Popup sign-in error:', err.code, err.message);
+
+            // If popup was blocked or closed, try redirect as fallback
+            if (err.code === 'auth/popup-blocked' ||
+                err.code === 'auth/popup-closed-by-user' ||
+                err.code === 'auth/cancelled-popup-request') {
+                console.log('Popup failed, trying redirect...');
+                try {
+                    await signInWithRedirect(auth, provider);
+                    return; // Page will redirect, no need to setLoading(false)
+                } catch (redirectErr) {
+                    setError(`Redirect Auth Error (${redirectErr.code}): ${redirectErr.message}`);
+                }
+            } else if (err.code === 'auth/unauthorized-domain') {
+                setError(`❌ This domain is not authorized in Firebase. Go to Firebase Console → Authentication → Settings → Authorized domains and add your Vercel domain.`);
+            } else if (err.code === 'auth/invalid-api-key') {
+                setError(`❌ Invalid Firebase API key. Check your environment variables on Vercel.`);
+            } else if (err.code === 'auth/configuration-not-found' || !process.env.REACT_APP_FIREBASE_API_KEY) {
+                setError(`❌ Firebase config is missing. Environment variables were not set at build time. Add them in Vercel Dashboard → Settings → Environment Variables, then REDEPLOY.`);
+            } else {
+                setError(`Auth Error (${err.code}): ${err.message}`);
+            }
         } finally {
             setLoading(false);
         }

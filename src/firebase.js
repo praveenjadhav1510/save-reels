@@ -1,6 +1,6 @@
 
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, updateProfile } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, updateProfile } from "firebase/auth";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 
@@ -13,10 +13,20 @@ const firebaseConfig = {
     appId: process.env.REACT_APP_FIREBASE_APP_ID
 };
 
+// Debug: Log config status (values will be undefined if env vars are missing)
+console.log('[Firebase Config Check]', {
+    apiKey: firebaseConfig.apiKey ? '✅ Set' : '❌ MISSING',
+    authDomain: firebaseConfig.authDomain ? '✅ Set' : '❌ MISSING',
+    projectId: firebaseConfig.projectId ? '✅ Set' : '❌ MISSING',
+    storageBucket: firebaseConfig.storageBucket ? '✅ Set' : '❌ MISSING',
+    messagingSenderId: firebaseConfig.messagingSenderId ? '✅ Set' : '❌ MISSING',
+    appId: firebaseConfig.appId ? '✅ Set' : '❌ MISSING',
+});
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const storage = getStorage(app);
 const provider = new GoogleAuthProvider();
 
-export { auth, provider, signInWithPopup, signOut, updateProfile, storage, ref, uploadBytes, getDownloadURL };
+export { auth, provider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, updateProfile, storage, ref, uploadBytes, getDownloadURL };
 
