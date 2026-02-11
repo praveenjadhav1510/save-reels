@@ -11,6 +11,10 @@ module.exports = async (req, res) => {
         return res.status(200).end();
     }
 
+    if (req.method !== 'GET') {
+        return res.status(405).json({ error: 'Method not allowed' });
+    }
+
     const { url } = req.query;
 
     if (!url) {
@@ -18,19 +22,33 @@ module.exports = async (req, res) => {
     }
 
     try {
-        console.log(`Fetching data for: ${url}`);
+        console.log(`[Vercel Function] Fetching data for: ${url}`);
 
-        // 1. Get Open Graph metadata (title/caption, thumbnail)
-        const ogData = await ogs({ url });
-        const meta = ogData.result;
+        // Run both requests in parallel for faster response
+        const [ogResult, links] = await Promise.allSettled([
+            ogs({ url }),
+            instagramGetUrl(url)
+        ]);
 
-        let caption = meta.ogDescription || meta.ogTitle || "Instagram Reel";
-        let thumbnail = meta.ogImage && meta.ogImage.length > 0 ? meta.ogImage[0].url : "";
+        // Extract OG metadata (non-critical, so we handle failure gracefully)
+        let caption = "Instagram Reel";
+        let thumbnail = "";
 
-        // 2. Get direct video links using instagram-url-direct
-        const links = await instagramGetUrl(url);
+        if (ogResult.status === 'fulfilled') {
+            const meta = ogResult.value.result;
+            caption = meta.ogDescription || meta.ogTitle || "Instagram Reel";
+            thumbnail = meta.ogImage && meta.ogImage.length > 0 ? meta.ogImage[0].url : "";
+        } else {
+            console.warn('OG scraping failed, using defaults:', ogResult.reason?.message);
+        }
 
-        const videoUrl = links.url_list && links.url_list.length > 0 ? links.url_list[0] : null;
+        // Extract video URL (critical)
+        if (links.status === 'rejected') {
+            console.error('instagram-url-direct failed:', links.reason?.message);
+            return res.status(500).json({ error: 'Failed to extract video URL', details: links.reason?.message });
+        }
+
+        const videoUrl = links.value.url_list && links.value.url_list.length > 0 ? links.value.url_list[0] : null;
 
         if (!videoUrl) {
             return res.status(404).json({ error: 'Could not find video URL' });

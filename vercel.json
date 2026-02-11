@@ -2,10 +2,38 @@
     "version": 2,
     "buildCommand": "npm run build",
     "outputDirectory": "build",
+    "functions": {
+        "api/reel.js": {
+            "maxDuration": 30
+        }
+    },
     "rewrites": [
         {
             "source": "/api/reel",
             "destination": "/api/reel"
+        },
+        {
+            "source": "/((?!api|static|favicon|manifest|logo|robots|sitemap).*)",
+            "destination": "/index.html"
+        }
+    ],
+    "headers": [
+        {
+            "source": "/api/(.*)",
+            "headers": [
+                {
+                    "key": "Access-Control-Allow-Origin",
+                    "value": "*"
+                },
+                {
+                    "key": "Access-Control-Allow-Methods",
+                    "value": "GET, OPTIONS"
+                },
+                {
+                    "key": "Access-Control-Allow-Headers",
+                    "value": "Content-Type"
+                }
+            ]
         }
     ]
 }
